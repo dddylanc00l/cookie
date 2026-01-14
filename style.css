@@ -9,25 +9,53 @@ body {
   margin: 0;
   height: 100vh;
   display: flex;
-  flex-direction: column;   /* stack items vertically */
-  justify-content: center; /* center vertically */
-  align-items: center;     /* center horizontally */
-    /* Background image */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-  background-image: url("bgBlue.jpg");
-  background-size: contain;   /* fits image inside screen without stretching */
-  background-position: center;
-  background-repeat: no-repeat;
-  animation: bgCycle 1s infinite alternate;
+  background: url("bgBlue.jpg") center / contain no-repeat;
+  position: relative;
+  overflow: hidden;
 }
 
-@keyframes bgCycle {
-  0% {
-    background-color: rgb(196, 20, 196);
-  }
-  100% {
-    background-color: blue;
-  }
+/* animated overlay */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    135deg,              /* diagonal: top-left to bottom-right */
+    rgb(15, 8, 123) 0%,
+    rgb(236, 89, 63) 25%,
+    rgb(15, 8, 123) 50%,
+    rgb(238, 91, 81) 75%,
+    rgb(15, 8, 123) 100%
+  );
+
+  background-size: 200% 200%; /* bigger so diagonal motion is smooth */
+  animation: bgFlow 5s linear infinite;
+  opacity: 0.8;
+
+  z-index: -1;        
+  pointer-events: none;
+}
+
+@keyframes bgFlow {
+  from { background-position: 100% 100%; }
+  to   { background-position: 0% 0%; }  /* move diagonally */
+}
+
+#upgrades {
+  position: absolute;
+  left:  130px;
+  bottom: 600px;
+}
+
+#oma {
+  position: absolute;
+  left:  130px;
+  bottom: 550px;
 }
 
 #cookieImage:active {
