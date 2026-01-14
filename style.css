@@ -64,6 +64,37 @@ body::before {
   gap: 10px;             /* optional spacing between buttons */
 }
 
+#image {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  width: 300px;
+  height: 100vh;
+
+  pointer-events: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 10px;
+  padding: 10px;
+
+  z-index: 3;
+}
+
+
+.omaSprite {
+  width: 80px;
+  height: auto;
+}
+
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
 #cookieImage:active {
   transform: scale(0.95);
 }
@@ -74,6 +105,17 @@ body::before {
   color: white;
 }
 
+#gambel {
+  position: absolute;
+  left: 130px;
+  bottom: 100px;
+  display: flex;
+  flex-direction: column; /* stack children vertically */ 
+}
+
+#gok {
+  height: 50px;
+}
 
 @keyframes glow {
   0% {
