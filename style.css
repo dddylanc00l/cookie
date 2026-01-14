@@ -5,7 +5,7 @@
   transition: transform 0.1s;
 }
 
-body {
+body{
   margin: 0;
   height: 100vh;
   display: flex;
@@ -16,6 +16,15 @@ body {
   background: url("bgBlue.jpg") center / contain no-repeat;
   position: relative;
   overflow: hidden;
+}
+
+main {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 /* animated overlay */
@@ -35,7 +44,7 @@ body::before {
 
   background-size: 200% 200%; /* bigger so diagonal motion is smooth */
   animation: bgFlow 5s linear infinite;
-  opacity: 0.8;
+  opacity: 0.6;
 
   z-index: -1;        
   pointer-events: none;
@@ -48,9 +57,14 @@ body::before {
 
 #upgrades {
   position: absolute;
-  left:  130px;
+  left: 130px;
   bottom: 600px;
+
+  display: flex;
+  flex-direction: column; /* stack children vertically */
+  gap: 10px;             /* optional spacing between buttons */
 }
+
 
 #oma {
   position: absolute;

@@ -18,4 +18,4 @@ document.getElementById("reset").addEventListener("click", function () {
   score = 0;
   scoreText.textContent = score;
   localStorage.setItem("score", score);
-});
+}); 
