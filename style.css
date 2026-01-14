@@ -12,6 +12,22 @@ body {
   flex-direction: column;   /* stack items vertically */
   justify-content: center; /* center vertically */
   align-items: center;     /* center horizontally */
+    /* Background image */
+
+  background-image: url("bgBlue.jpg");
+  background-size: contain;   /* fits image inside screen without stretching */
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: bgCycle 1s infinite alternate;
+}
+
+@keyframes bgCycle {
+  0% {
+    background-color: rgb(196, 20, 196);
+  }
+  100% {
+    background-color: blue;
+  }
 }
 
 #cookieImage:active {
@@ -21,4 +37,5 @@ body {
 #score {
   font-size: 48px;
   margin-bottom: 20px;
+  color: white;
 }
