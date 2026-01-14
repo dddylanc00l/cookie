@@ -5,7 +5,7 @@
   transition: transform 0.1s;
 }
 
-body{
+body {
   margin: 0;
   height: 100vh;
   display: flex;
@@ -18,16 +18,6 @@ body{
   overflow: hidden;
 }
 
-main {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/* animated overlay */
 body::before {
   content: "";
   position: absolute;
@@ -57,19 +47,15 @@ body::before {
 
 #upgrades {
   position: absolute;
-  left: 130px;
+  left:  130px;
   bottom: 600px;
-
-  display: flex;
-  flex-direction: column; /* stack children vertically */
-  gap: 10px;             /* optional spacing between buttons */
 }
-
 
 #oma {
   position: absolute;
-  left:  130px;
-  bottom: 550px;
+  left:  100px;
+  bottom: 570px;
+  width: 200px;
 }
 
 #cookieImage:active {
@@ -80,4 +66,56 @@ body::before {
   font-size: 48px;
   margin-bottom: 20px;
   color: white;
+}
+
+#oma {
+  position: absolute;
+  left: 100px;
+  bottom: 580px;
+  cursor: pointer;
+}
+
+#oma::after {
+  content: "Gives +1 score per second. Costs 50 clicks.";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  font-size: 14px;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 10;
+}
+
+#oma:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 0px rgba(10, 122, 31, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 20px rgb(0, 45, 17);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 0px rgba(255, 255, 0, 0);
+    transform: scale(1);
+  }
+}
+
+/* Class to trigger glow */
+.glow {
+  animation: glow 0.5s ease-in-out;
 }
