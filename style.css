@@ -1,0 +1,18 @@
+#cookieImage {
+  max-width: 500px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#cookieImage:active {
+  transform: scale(0.95);
+}
