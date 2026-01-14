@@ -82,6 +82,16 @@ body::before {
   z-index: 3;
 }
 
+.locked {
+  background-color: red;
+  color: white;
+  cursor: not-allowed;
+}
+
+.unlocked {
+  background-color: white;
+  color: black;
+}
 
 .omaSprite {
   width: 80px;

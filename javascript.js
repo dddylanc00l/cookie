@@ -7,9 +7,12 @@ const cookie = document.getElementById("cookieImage");
 const scoreText = document.getElementById("score");
 const button = document.getElementById("oma");
 const gambel = document.getElementById("gok");
+const farm = document.getElementById("farm");
 
 // --- Track Oma purchases ---
 let omaCount = parseInt(localStorage.getItem("omaCount")) || 0;
+
+updateFarmState();
 
 for (let i = 0; i < omaCount; i++) {
   spawnOma();
@@ -51,6 +54,7 @@ document.getElementById("reset").addEventListener("click", () => {
   omaCount = 0;
   localStorage.setItem("omaCount", omaCount);
   button.textContent = `Oma: ${omaCount}`;
+  updateFarmState();
 
   // Remove Oma images from the screen
   document.getElementById("image").innerHTML = "";
@@ -67,7 +71,8 @@ button.addEventListener("click", () => {
     localStorage.setItem("omaCount", omaCount);
 
     button.textContent = `Oma: ${omaCount}`;
-
+    
+    updateFarmState();
     spawnOma();
 
     button.classList.add("glow");
@@ -90,7 +95,7 @@ gambel.addEventListener("click", () => {
   if (roll === 0) {
     score *= 2;
     alert("You won! Your cookies doubled 🍪🍪");
-    
+
   } else {
 
     score = 0;
@@ -100,3 +105,15 @@ gambel.addEventListener("click", () => {
   scoreText.textContent = score;
   localStorage.setItem("score", score);
 });
+
+function updateFarmState() {
+  if (omaCount >= 1) {
+    farm.classList.remove("locked");
+    farm.classList.add("unlocked");
+    farm.disabled = false;
+  } else {
+    farm.classList.add("locked");
+    farm.classList.remove("unlocked");
+    farm.disabled = true;
+  }
+}
