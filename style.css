@@ -115,7 +115,7 @@ body {
 .omaSprite,
 .farmSprite,
 .mineSprite {
-  width: 100%;
+  width: 200%;
   max-width: 80px;
   height: auto;
 }

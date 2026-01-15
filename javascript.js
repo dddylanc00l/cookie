@@ -212,7 +212,7 @@ function updateMineState() {
 
 function updatePerSecond() {
   const perSecond = (omaCount * OMA_PPS) + (farmCount * FARM_PPS) + (mineCount * MINE_PPS);
-  perSecondText.textContent = `${perSecond}$ per second`;
+  perSecondText.textContent = `${perSecond} per second`;
 }
 
 function spawnFarm() {
