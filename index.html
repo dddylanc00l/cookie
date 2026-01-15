@@ -7,36 +7,41 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="game-layout">
+
+    <aside id="left-ui">
+      <section id="upgrades">
+        <h1>upgrades:</h1>
+
+        <div class="upgrade-item">
+          <button id="oma" class="upgrade-btn">Oma</button>
+          <span class="tooltip">$50<br>+1$ per second</span>
+        </div>
+
+        <div class="upgrade-item">
+          <button id="farm" class="upgrade-btn">Farm</button>
+          <span class="tooltip">$200<br>+5$ per second</span>
+        </div>
+      </section>
+
+      <section id="gambel">
+        <h1>gambling: 1 in 2 chance</h1>
+        <button id="gok">gambling</button>
+      </section>
+    </aside>
+
     <main>
-        <h1 id="score">0</h1>
-        <p id="perSecond">0 per second</p>
-        <img src="cookie.png" alt="cookie" id="cookieImage">
-        <button id="reset">Reset</button>
+      <h1 id="score">0</h1>
+      <p id="perSecond">0 per second</p>
+      <img src="cookie.png" alt="cookie" id="cookieImage">
+      <button id="reset">Reset</button>
     </main>
 
-    <section id="upgrades">
-  <h1>upgrades:</h1>
+    <section id="image"></section>
 
-  <div class="upgrade-item">
-    <button id="oma" class="upgrade-btn">Oma</button>
-    <span class="tooltip">$50<br>+1$ per second</span>
   </div>
 
-  <div class="upgrade-item">
-    <button id="farm" class="upgrade-btn">Farm</button>
-    <span class="tooltip">$200<br>+5$ per second</span>
-  </div>
-</section>
-
-<section id="gambel">
-    <h1>gambling: 1 in 2 chance</h1>
-    <button id="gok">gambling</button>
-</section>
-
-<section id="image">
-        
-</section>
-
-<script src="javascript.js"></script>
+  <script src="javascript.js"></script>
 </body>
+
 </html>

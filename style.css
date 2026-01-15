@@ -19,12 +19,23 @@ body {
 }
 
 main {
-  margin: 0;
-  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+#left-ui {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+#game-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 300px;
+  height: 100vh;
 }
 
 body::before {
@@ -67,21 +78,12 @@ body::before {
 
 
 #image {
-  position: absolute;
-  top: 0;
-  right: 0;
-
-  width: 300px;
-  height: 100vh;
-
-  pointer-events: none;
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
   gap: 10px;
   padding: 10px;
-
-  z-index: 3;
+  pointer-events: none;
 }
 
 .omaSprite {
@@ -107,7 +109,7 @@ body::before {
 
 #gambel {
   position: absolute;
-  left: 130px;
+  left: 110px;
   bottom: 100px;
   display: flex;
   flex-direction: column; /* stack children vertically */ 
