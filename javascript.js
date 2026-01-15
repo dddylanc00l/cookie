@@ -96,10 +96,16 @@ buttonOma.addEventListener("click", () => {
 });
 
 function spawnOma() {
+  const container = document.getElementById("image");
+
+  // Max 6 Oma images
+  if (container.children.length >= 6) return;
+
   const oma = document.createElement("img");
-  oma.src = "oma.jpg";      // your grandma image
+  oma.src = "oma.jpg";
   oma.className = "omaSprite";
-  document.getElementById("image").appendChild(oma);
+
+  container.appendChild(oma);
 }
 
 gambel.addEventListener("click", () => {
