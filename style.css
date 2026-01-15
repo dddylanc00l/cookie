@@ -1,36 +1,44 @@
-/* LAYOUT GRID */
+/* =========================
+   LAYOUT GRID
+========================= */
 #game-layout {
   display: grid;
   grid-template-columns: minmax(220px, 20vw) 1fr minmax(220px, 20vw);
   height: 100vh;
 }
 
-/* LEFT UI: upgrades + gamble */
+/* =========================
+   LEFT UI
+========================= */
 #left-ui {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* pushes gamble to bottom */
+  justify-content: space-between;
   padding: 2vh 1vw;
 }
 
-/* CENTER GAME: cookie + score */
+/* =========================
+   CENTER GAME
+========================= */
 main {
   background: url("bgBlue.jpg") center / cover no-repeat;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* vertically center cookie */
-  align-items: center;     /* horizontally center cookie */
-  box-sizing: border-box;  /* include padding if any */
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 body {
-  margin: 0;          /* remove default body margin */
-  overflow-y: hidden; /* prevent vertical scrolling */
+  margin: 0;
+  overflow-y: hidden;
 }
 
-/* COOKIE IMAGE */
+/* =========================
+   COOKIE
+========================= */
 #cookieImage {
   width: 50vw;
   min-width: 500px;
@@ -44,7 +52,24 @@ body {
   transform: scale(0.95);
 }
 
-/* GAMBLE BUTTON: at bottom of left column */
+/* =========================
+   SCORE DISPLAY
+========================= */
+#score {
+  font-size: 48px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+#perSecond {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: white;
+}
+
+/* =========================
+   GAMBLE SECTION
+========================= */
 #gambel {
   display: flex;
   flex-direction: column;
@@ -57,7 +82,9 @@ body {
   font-size: 1vw;
 }
 
-/* RIGHT PANEL: Oma images */
+/* =========================
+   RIGHT PANEL (SPRITES)
+========================= */
 #image {
   position: fixed;
   top: 0;
@@ -66,37 +93,50 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  gap: 4vh;       /* space between Oma and Farm containers */
+  gap: 4vh;
   pointer-events: none;
   z-index: 5;
 }
 
-#oma-container {
+/* Shared container styling */
+#oma-container,
+#farm-container,
+#mine-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);  /* 3 columns */
-  grid-template-rows: repeat(2, auto);    /* 2 rows */
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
   gap: 1vh;
-  justify-items: end;                      /* push images to right inside their cells */
+  justify-items: end;
 }
 
-#farm-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);  /* also 3 columns */
-  grid-template-rows: repeat(2, auto);    /* 2 rows */
-  gap: 1vh;
-  justify-items: end;                      /* push images to right */
-}
-
-/* Sprites */
-.omaSprite, .farmSprite {
-  width: 200%;
-  max-width: 100px;
+/* =========================
+   SPRITES (FIXED SIZE)
+========================= */
+.omaSprite,
+.farmSprite,
+.mineSprite {
+  width: 100%;
+  max-width: 80px;
   height: auto;
 }
 
+/* =========================
+   LOCK STATES
+========================= */
+.locked {
+  background-color: red;
+  color: white;
+  cursor: not-allowed;
+}
 
-/* ANIMATED GRADIENT OVERLAY */
+.unlocked {
+  background-color: white;
+  color: black;
+}
+
+/* =========================
+   ANIMATED BACKGROUND
+========================= */
 body::before {
   content: "";
   position: absolute;
@@ -115,34 +155,11 @@ body::before {
   animation: bgFlow 5s linear infinite;
   opacity: 0.6;
 
-  z-index: -1;        /* behind everything */
+  z-index: -1;
   pointer-events: none;
 }
 
 @keyframes bgFlow {
   from { background-position: 100% 100%; }
   to   { background-position: 0% 0%; }
-}
-
-.locked {
-  background-color: red;
-  color: white;
-  cursor: not-allowed;
-}
-
-.unlocked {
-  background-color: white;
-  color: black;
-}
-
-#score {
-  font-size: 48px;
-  margin-bottom: 20px;
-  color: white;
-}
-
-#perSecond {
-  font-size: 32px;
-  margin-bottom: 20px;
-  color: white;
 }

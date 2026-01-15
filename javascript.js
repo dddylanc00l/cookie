@@ -4,24 +4,29 @@ let score = saved !== null && !isNaN(saved) ? parseInt(saved) : 0;
 
 const OMA_COST = 50;
 const FARM_COST = 200;
+const MINE_COST = 1000;
 
 const OMA_PPS = 1;
 const FARM_PPS = 5;
+const MINE_PPS = 25;
 
 // --- Get DOM elements ---
 const cookie = document.getElementById("cookieImage");
+const perSecondText = document.getElementById("perSecond");
 const scoreText = document.getElementById("score");
 const buttonOma = document.getElementById("oma");
-const perSecondText = document.getElementById("perSecond");
 const buttonFarm = document.getElementById("farm");
+const buttonMine = document.getElementById("mine");
 const gambel = document.getElementById("gok");
 
 // --- Track purchases ---
 let omaCount = parseInt(localStorage.getItem("omaCount")) || 0;
 let farmCount = parseInt(localStorage.getItem("farmCount")) || 0;
+let mineCount = parseInt(localStorage.getItem("mineCount")) || 0;
 
-updateFarmState();
 updatePerSecond()
+updateFarmState();
+updateMineState();
 
 for (let i = 0; i < omaCount; i++) {
   spawnOma();
@@ -31,16 +36,21 @@ for (let i = 0; i < farmCount; i++) {
   spawnFarm();
 }
 
+for (let i = 0; i < mineCount; i++) {
+  spawnMine();
+}
+
 // --- Display initial values ---
 scoreText.textContent = score;
 buttonOma.textContent = `Oma: ${omaCount}`;
 buttonFarm.textContent = `Farm: ${farmCount}`;
+buttonMine.textContent = `Mine: ${mineCount}`;
 
 
 // --- Auto-add score ---
 function startAutoScore() {
   setInterval(() => {
-    const perSecond = (omaCount * OMA_PPS) + (farmCount * FARM_PPS);
+    const perSecond = (omaCount * OMA_PPS) + (farmCount * FARM_PPS) + (mineCount * MINE_PPS);
 
     if (perSecond > 0) {
       score += perSecond;
@@ -64,16 +74,20 @@ document.getElementById("reset").addEventListener("click", () => {
   score = 0;
   omaCount = 0;
   farmCount = 0;
+  mineCount = 0;
 
   scoreText.textContent = score;
   buttonOma.textContent = `Oma: ${omaCount}`;
   buttonFarm.textContent = `Farm: ${farmCount}`;
+  buttonMine.textContent = `Mine: ${mineCount}`;
 
   localStorage.setItem("score", score);
   localStorage.setItem("omaCount", omaCount);
   localStorage.setItem("farmCount", farmCount);
+  localStorage.setItem("mineCount", mineCount);
 
   updateFarmState();
+  updateMineState();
   updatePerSecond()
   document.getElementById("image").innerHTML = "";
 });
@@ -91,6 +105,7 @@ buttonOma.addEventListener("click", () => {
     buttonOma.textContent = `Oma: ${omaCount}`;
 
     updateFarmState();
+    updateMineState();
     updatePerSecond()
     spawnOma();
 
@@ -142,11 +157,31 @@ buttonFarm.addEventListener("click", () => {
 
     buttonFarm.textContent = `Farm: ${farmCount}`;
 
+    updateMineState();
     spawnFarm()
     updatePerSecond()
 
     buttonFarm.classList.add("glow");
     setTimeout(() => buttonFarm.classList.remove("glow"), 500);
+  }
+});
+
+buttonMine.addEventListener("click", () => {
+  if (score >= MINE_COST) {
+    score -= MINE_COST;
+    scoreText.textContent = score;
+    localStorage.setItem("score", score);
+
+    mineCount++;
+    localStorage.setItem("mineCount", mineCount);
+
+    buttonMine.textContent = `Mine: ${mineCount}`;
+
+    updatePerSecond();
+    spawnMine();
+
+    buttonMine.classList.add("glow");
+    setTimeout(() => buttonMine.classList.remove("glow"), 500);
   }
 });
 
@@ -163,8 +198,20 @@ function updateFarmState() {
   }
 }
 
+function updateMineState() {
+  if (farmCount >= 1) {
+    buttonMine.classList.remove("locked");
+    buttonMine.classList.add("unlocked");
+    buttonMine.disabled = false;
+  } else {
+    buttonMine.classList.add("locked");
+    buttonMine.classList.remove("unlocked");
+    buttonMine.disabled = true;
+  }
+}
+
 function updatePerSecond() {
-  const perSecond = (omaCount * OMA_PPS) + (farmCount * FARM_PPS);
+  const perSecond = (omaCount * OMA_PPS) + (farmCount * FARM_PPS) + (mineCount * MINE_PPS);
   perSecondText.textContent = `${perSecond}$ per second`;
 }
 
@@ -178,4 +225,16 @@ function spawnFarm() {
   farm.className = "farmSprite";
 
   container.appendChild(farm);
+}
+
+function spawnMine() {
+  const container = document.getElementById("mine-container");
+
+  if (container.children.length >= 6) return;
+
+  const mine = document.createElement("img");
+  mine.src = "mine.png";
+  mine.className = "mineSprite";
+
+  container.appendChild(mine);
 }
