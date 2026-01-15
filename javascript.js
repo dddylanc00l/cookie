@@ -2,38 +2,42 @@
 let saved = localStorage.getItem("score");
 let score = saved !== null && !isNaN(saved) ? parseInt(saved) : 0;
 
+const OMA_COST = 50;
+const FARM_COST = 200;
+
+const OMA_PPS = 1;
+const FARM_PPS = 5;
+
 // --- Get DOM elements ---
 const cookie = document.getElementById("cookieImage");
 const scoreText = document.getElementById("score");
-const button = document.getElementById("oma");
-const gambel = document.getElementById("gok");
-const farm = document.getElementById("farm");
+const buttonOma = document.getElementById("oma");
+const buttonFarm = document.getElementById("farm");
 
-// --- Track Oma purchases ---
+// --- Track purchases ---
 let omaCount = parseInt(localStorage.getItem("omaCount")) || 0;
-
-updateFarmState();
-
-for (let i = 0; i < omaCount; i++) {
-  spawnOma();
-}
+let farmCount = parseInt(localStorage.getItem("farmCount")) || 0;
 
 // --- Display initial values ---
 scoreText.textContent = score;
-button.textContent = `Oma: ${omaCount}`;
+buttonOma.textContent = `Oma: ${omaCount}`;
+buttonFarm.textContent = `Farm: ${farmCount}`;
 
-// --- Function to auto-add score based on Oma count ---
+updateFarmState();
+
+// --- Auto-add score ---
 function startAutoScore() {
   setInterval(() => {
-    if (omaCount > 0) {
-      score += omaCount; // +1 per Oma
+    const perSecond = (omaCount * OMA_PPS) + (farmCount * FARM_PPS);
+
+    if (perSecond > 0) {
+      score += perSecond;
       scoreText.textContent = score;
       localStorage.setItem("score", score);
     }
   }, 1000);
 }
 
-// Start the auto-score interval
 startAutoScore();
 
 // --- Cookie click ---
@@ -43,77 +47,68 @@ cookie.addEventListener("click", () => {
   localStorage.setItem("score", score);
 });
 
-// --- Reset button ---
+// --- Reset ---
 document.getElementById("reset").addEventListener("click", () => {
-  // Reset score
   score = 0;
-  scoreText.textContent = score;
-  localStorage.setItem("score", score);
-
-  // Reset Oma purchases
   omaCount = 0;
-  localStorage.setItem("omaCount", omaCount);
-  button.textContent = `Oma: ${omaCount}`;
-  updateFarmState();
+  farmCount = 0;
 
-  // Remove Oma images from the screen
-  document.getElementById("image").innerHTML = "";
+  scoreText.textContent = score;
+  buttonOma.textContent = `Oma: ${omaCount}`;
+  buttonFarm.textContent = `Farm: ${farmCount}`;
+
+  localStorage.setItem("score", score);
+  localStorage.setItem("omaCount", omaCount);
+  localStorage.setItem("farmCount", farmCount);
+
+  updateFarmState();
 });
 
 // --- Oma button purchase ---
-button.addEventListener("click", () => {
-  if (score >= 50) {
-    score -= 50;
+buttonOma.addEventListener("click", () => {
+  if (score >= OMA_COST) {
+    score -= OMA_COST;
     scoreText.textContent = score;
     localStorage.setItem("score", score);
 
     omaCount++;
     localStorage.setItem("omaCount", omaCount);
 
-    button.textContent = `Oma: ${omaCount}`;
-    
+    buttonOma.textContent = `Oma: ${omaCount}`;
+
     updateFarmState();
-    spawnOma();
 
-    button.classList.add("glow");
-    setTimeout(() => button.classList.remove("glow"), 500);
+    buttonOma.classList.add("glow");
+    setTimeout(() => buttonOma.classList.remove("glow"), 500);
   }
 });
 
-function spawnOma() {
-  const oma = document.createElement("img");
-  oma.src = "oma.jpg";      // your grandma image
-  oma.className = "omaSprite";
-  document.getElementById("image").appendChild(oma);
-}
+// --- Farm button purchase ---
+buttonFarm.addEventListener("click", () => {
+  if (score >= FARM_COST) {
+    score -= FARM_COST;
+    scoreText.textContent = score;
+    localStorage.setItem("score", score);
 
-gambel.addEventListener("click", () => {
-  if (score <= 0) return; // can't gamble nothing
+    farmCount++;
+    localStorage.setItem("farmCount", farmCount);
 
-  const roll = Math.floor(Math.random() * 4); // 0,1,2,3
+    buttonFarm.textContent = `Farm: ${farmCount}`;
 
-  if (roll === 0) {
-    score *= 2;
-    alert("You won! Your cookies doubled 🍪🍪");
-
-  } else {
-
-    score = 0;
-    alert("You lost everything...");
+    buttonFarm.classList.add("glow");
+    setTimeout(() => buttonFarm.classList.remove("glow"), 500);
   }
-
-  scoreText.textContent = score;
-  localStorage.setItem("score", score);
 });
 
+// --- Update farm state ---
 function updateFarmState() {
   if (omaCount >= 1) {
-    farm.classList.remove("locked");
-    farm.classList.add("unlocked");
-    farm.disabled = false;
+    buttonFarm.classList.remove("locked");
+    buttonFarm.classList.add("unlocked");
+    buttonFarm.disabled = false;
   } else {
-    farm.classList.add("locked");
-    farm.classList.remove("unlocked");
-    farm.disabled = true;
+    buttonFarm.classList.add("locked");
+    buttonFarm.classList.remove("unlocked");
+    buttonFarm.disabled = true;
   }
 }
