@@ -86,13 +86,12 @@ body {
   grid-template-rows: repeat(2, auto);    /* 2 rows */
   gap: 1vh;
   justify-items: end;                      /* push images to right */
-  margin-top: auto;                        /* vertically middle-right */
 }
 
 /* Sprites */
 .omaSprite, .farmSprite {
-  width: 100%;
-  max-width: 80px;
+  width: 200%;
+  max-width: 100px;
   height: auto;
 }
 
