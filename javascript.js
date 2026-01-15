@@ -12,18 +12,26 @@ const FARM_PPS = 5;
 const cookie = document.getElementById("cookieImage");
 const scoreText = document.getElementById("score");
 const buttonOma = document.getElementById("oma");
+const perSecondText = document.getElementById("perSecond");
 const buttonFarm = document.getElementById("farm");
+const gambel = document.getElementById("gok");
 
 // --- Track purchases ---
 let omaCount = parseInt(localStorage.getItem("omaCount")) || 0;
 let farmCount = parseInt(localStorage.getItem("farmCount")) || 0;
+
+updateFarmState();
+updatePerSecond()
+
+for (let i = 0; i < omaCount; i++) {
+  spawnOma();
+}
 
 // --- Display initial values ---
 scoreText.textContent = score;
 buttonOma.textContent = `Oma: ${omaCount}`;
 buttonFarm.textContent = `Farm: ${farmCount}`;
 
-updateFarmState();
 
 // --- Auto-add score ---
 function startAutoScore() {
@@ -62,6 +70,8 @@ document.getElementById("reset").addEventListener("click", () => {
   localStorage.setItem("farmCount", farmCount);
 
   updateFarmState();
+  updatePerSecond()
+  document.getElementById("image").innerHTML = "";
 });
 
 // --- Oma button purchase ---
@@ -77,10 +87,38 @@ buttonOma.addEventListener("click", () => {
     buttonOma.textContent = `Oma: ${omaCount}`;
 
     updateFarmState();
+    updatePerSecond()
+    spawnOma();
 
     buttonOma.classList.add("glow");
     setTimeout(() => buttonOma.classList.remove("glow"), 500);
   }
+});
+
+function spawnOma() {
+  const oma = document.createElement("img");
+  oma.src = "oma.jpg";      // your grandma image
+  oma.className = "omaSprite";
+  document.getElementById("image").appendChild(oma);
+}
+
+gambel.addEventListener("click", () => {
+  if (score <= 0) return; // can't gamble nothing
+
+  const roll = Math.floor(Math.random() * 4); // 0,1,2,3
+
+  if (roll === 0) {
+    score *= 2;
+    alert("You won! Your cookies doubled 🍪🍪");
+
+  } else {
+
+    score = 0;
+    alert("You lost everything...");
+  }
+
+  scoreText.textContent = score;
+  localStorage.setItem("score", score);
 });
 
 // --- Farm button purchase ---
@@ -94,6 +132,8 @@ buttonFarm.addEventListener("click", () => {
     localStorage.setItem("farmCount", farmCount);
 
     buttonFarm.textContent = `Farm: ${farmCount}`;
+
+    updatePerSecond()
 
     buttonFarm.classList.add("glow");
     setTimeout(() => buttonFarm.classList.remove("glow"), 500);
@@ -111,4 +151,9 @@ function updateFarmState() {
     buttonFarm.classList.remove("unlocked");
     buttonFarm.disabled = true;
   }
+}
+
+function updatePerSecond() {
+  const perSecond = (omaCount * OMA_PPS) + (farmCount * FARM_PPS);
+  perSecondText.textContent = `${perSecond}$ per second`;
 }
