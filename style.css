@@ -55,14 +55,16 @@ body::before {
 }
 
 #upgrades {
-  position: absolute;
-  left: 130px;
-  bottom: 600px;
+  position: fixed;
+  left: 3vw;
+  top: 20vh;
 
   display: flex;
-  flex-direction: column; /* stack children vertically */
-  gap: 10px;             /* optional spacing between buttons */
+  flex-direction: column;
+  gap: 10px;
+  z-index: 5;
 }
+
 
 #image {
   position: absolute;
