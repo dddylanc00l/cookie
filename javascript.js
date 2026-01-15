@@ -11,6 +11,7 @@ const FARM_PPS = 5;
 // --- Get DOM elements ---
 const cookie = document.getElementById("cookieImage");
 const scoreText = document.getElementById("score");
+const perSecondText = document.getElementById("perSecond");
 const buttonOma = document.getElementById("oma");
 const buttonFarm = document.getElementById("farm");
 
@@ -24,6 +25,7 @@ buttonOma.textContent = `Oma: ${omaCount}`;
 buttonFarm.textContent = `Farm: ${farmCount}`;
 
 updateFarmState();
+updatePerSecond();
 
 // --- Auto-add score ---
 function startAutoScore() {
@@ -62,6 +64,7 @@ document.getElementById("reset").addEventListener("click", () => {
   localStorage.setItem("farmCount", farmCount);
 
   updateFarmState();
+  updatePerSecond();
 });
 
 // --- Oma button purchase ---
@@ -77,6 +80,7 @@ buttonOma.addEventListener("click", () => {
     buttonOma.textContent = `Oma: ${omaCount}`;
 
     updateFarmState();
+    updatePerSecond();
 
     buttonOma.classList.add("glow");
     setTimeout(() => buttonOma.classList.remove("glow"), 500);
@@ -95,6 +99,8 @@ buttonFarm.addEventListener("click", () => {
 
     buttonFarm.textContent = `Farm: ${farmCount}`;
 
+    updatePerSecond();
+
     buttonFarm.classList.add("glow");
     setTimeout(() => buttonFarm.classList.remove("glow"), 500);
   }
@@ -111,4 +117,9 @@ function updateFarmState() {
     buttonFarm.classList.remove("unlocked");
     buttonFarm.disabled = true;
   }
+}
+
+function updatePerSecond() {
+  const perSecond = (omaCount * OMA_PPS) + (farmCount * FARM_PPS);
+  perSecondText.textContent = `${perSecond}$ per second`;
 }
