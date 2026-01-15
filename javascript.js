@@ -27,6 +27,10 @@ for (let i = 0; i < omaCount; i++) {
   spawnOma();
 }
 
+for (let i = 0; i < farmCount; i++) {
+  spawnFarm();
+}
+
 // --- Display initial values ---
 scoreText.textContent = score;
 buttonOma.textContent = `Oma: ${omaCount}`;
@@ -96,13 +100,12 @@ buttonOma.addEventListener("click", () => {
 });
 
 function spawnOma() {
-  const container = document.getElementById("image");
+  const container = document.getElementById("oma-container");
 
-  // Max 6 Oma images
   if (container.children.length >= 6) return;
 
   const oma = document.createElement("img");
-  oma.src = "oma.jpg";
+  oma.src = "grandma.png";
   oma.className = "omaSprite";
 
   container.appendChild(oma);
@@ -139,6 +142,7 @@ buttonFarm.addEventListener("click", () => {
 
     buttonFarm.textContent = `Farm: ${farmCount}`;
 
+    spawnFarm()
     updatePerSecond()
 
     buttonFarm.classList.add("glow");
@@ -162,4 +166,16 @@ function updateFarmState() {
 function updatePerSecond() {
   const perSecond = (omaCount * OMA_PPS) + (farmCount * FARM_PPS);
   perSecondText.textContent = `${perSecond}$ per second`;
+}
+
+function spawnFarm() {
+  const container = document.getElementById("farm-container");
+
+  if (container.children.length >= 6) return;
+
+  const farm = document.createElement("img");
+  farm.src = "farm.png";
+  farm.className = "farmSprite";
+
+  container.appendChild(farm);
 }
