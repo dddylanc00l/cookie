@@ -4,6 +4,14 @@
 let saved = localStorage.getItem("score");
 let score = saved !== null && !isNaN(saved) ? parseInt(saved) : 0;
 
+let clickCount = 0;          // counts clicks in the current second
+const maxClicksPerSecond = 50; // maximum allowed clicks per second
+
+// Reset the click counter every 1 second
+setInterval(() => {
+  clickCount = 0;
+}, 1000);
+
 /* =========================
    NUMBER FORMATTER
 ========================= */
@@ -124,10 +132,15 @@ setInterval(() => {
    COOKIE CLICK
 ========================= */
 cookie.addEventListener("click", () => {
+  if (clickCount >= maxClicksPerSecond) return; // ignore if too many clicks
+
+  clickCount++; // count this click
+
   score++;
   scoreText.textContent = formatNumber(score);
   localStorage.setItem("score", score);
 });
+
 
 /* =========================
    RESET
