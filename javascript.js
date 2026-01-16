@@ -81,7 +81,11 @@ setInterval(() => {
     score += total;
     scoreText.textContent = formatNumber(score);
     localStorage.setItem("score", score);
-    updateAllUpgradeButtons(); // update buttons to gray out unaffordable upgrades
+
+    // Update buttons and unlocks in real-time
+    updateAllUpgradeButtons();
+    updateUnlocks();
+    updateStore();
   }
 }, 1000);
 
@@ -94,7 +98,10 @@ cookie.addEventListener("click", () => {
   score++;
   scoreText.textContent = formatNumber(score);
   localStorage.setItem("score", score);
+
   updateAllUpgradeButtons();
+  updateUnlocks();
+  updateStore();
 });
 
 /* =========================
@@ -115,11 +122,11 @@ resetBtn.addEventListener("click", () => {
   weedCookieBought = false;
   localStorage.removeItem("weedCookie");
 
-  updateStore();
   updateAllUpgradeButtons();
   updatePerSecond();
-  updateTooltips();
   updateUnlocks();
+  updateTooltips();
+  updateStore();
 });
 
 /* =========================
@@ -138,7 +145,10 @@ gambleBtn.addEventListener("click", () => {
 
   scoreText.textContent = formatNumber(score);
   localStorage.setItem("score", score);
+
   updateAllUpgradeButtons();
+  updateUnlocks();
+  updateStore();
 });
 
 /* =========================
@@ -155,18 +165,19 @@ for (const type in upgrades) {
 
     score -= cost;
     counts[type]++;
-
     localStorage.setItem("score", score);
     localStorage.setItem(type, counts[type]);
 
     scoreText.textContent = formatNumber(score);
 
     spawnUpgrade(type);
-    updateUpgradeButton(type);
-    updateStore();
+
+    // Update everything after score changed
+    updateAllUpgradeButtons();
+    updateUnlocks();
     updatePerSecond();
     updateTooltips();
-    updateUnlocks();
+    updateStore();
   });
 }
 
@@ -178,7 +189,9 @@ function updateStore() {
 
   weedCookieImg.classList.remove("locked", "unlocked");
 
-  if (weedCookieBought || counts.farm >= 100) {
+  if (weedCookieBought) {
+    weedCookieImg.classList.add("unlocked");
+  } else if (counts.farm >= 100) {
     weedCookieImg.classList.add("unlocked");
   } else {
     weedCookieImg.classList.add("locked");
@@ -195,6 +208,7 @@ if (weedCookieImg) {
     alert("🌿 Weed Cookie bought! Farms now produce 20$/s");
 
     updateAllUpgradeButtons();
+    updateUnlocks();
     updatePerSecond();
     updateTooltips();
     updateStore();
@@ -218,14 +232,7 @@ function calculateTotalPPS() {
 }
 
 function updatePerSecond() {
-  perSecondText.textContent =
-    `${formatNumber(calculateTotalPPS())}$ per second`;
-}
-
-function getUpgradeCost(type) {
-  const baseCost = upgrades[type].cost;
-  const owned = counts[type];
-  return Math.floor(baseCost * Math.pow(1.15, owned));
+  perSecondText.textContent = `${formatNumber(calculateTotalPPS())}$ per second`;
 }
 
 function updateUpgradeButton(type) {
@@ -235,18 +242,7 @@ function updateUpgradeButton(type) {
   const cost = getUpgradeCost(type);
   const pps = getEffectivePPS(type);
 
-  button.textContent =
-    `${capitalize(type)}: ${counts[type]} | $${formatNumber(cost)} (+${pps}$/s)`;
-
-  // Check unlock + affordability
-  const unlocked = !upgrades[type].unlocksAt || counts[upgrades[type].unlocksAt] > 0;
-  const affordable = score >= cost;
-
-  button.disabled = !unlocked || !affordable;
-
-  // Update styling
-  button.classList.toggle("locked", !unlocked || !affordable);
-  button.classList.toggle("unlocked", unlocked && affordable);
+  button.textContent = `${capitalize(type)}: ${counts[type]} | $${formatNumber(cost)} (+${pps}$/s)`;
 }
 
 function updateAllUpgradeButtons() {
@@ -258,20 +254,22 @@ function updateAllUpgradeButtons() {
 function updateTooltips() {
   const farmTooltip = document.getElementById("farm-tooltip");
   if (!farmTooltip) return;
-  farmTooltip.innerHTML =
-    `$200<br>+${getEffectivePPS("farm")}$ per second`;
+
+  farmTooltip.innerHTML = `$200<br>+${getEffectivePPS("farm")}$ per second`;
 }
 
 function updateUnlocks() {
   for (const type in upgrades) {
     const button = document.getElementById(upgrades[type].buttonId);
-    const unlocked =
-      !upgrades[type].unlocksAt ||
-      counts[upgrades[type].unlocksAt] > 0;
+    if (!button) continue;
 
-    button.disabled = !unlocked || score < getUpgradeCost(type);
-    button.classList.toggle("locked", !unlocked);
-    button.classList.toggle("unlocked", unlocked);
+    const unlocked = !upgrades[type].unlocksAt || counts[upgrades[type].unlocksAt] > 0;
+    const affordable = score >= getUpgradeCost(type);
+    const enable = unlocked && affordable;
+
+    button.disabled = !enable;
+    button.classList.toggle("locked", !enable);
+    button.classList.toggle("unlocked", enable);
   }
 }
 
@@ -287,4 +285,10 @@ function spawnUpgrade(type) {
 
 function capitalize(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+function getUpgradeCost(type) {
+  const baseCost = upgrades[type].cost;
+  const owned = counts[type];
+  return Math.floor(baseCost * Math.pow(1.15, owned));
 }
