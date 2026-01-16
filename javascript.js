@@ -179,7 +179,7 @@ resetBtn.addEventListener("click", () => {
 gambleBtn.addEventListener("click", () => {
   if (score <= 0) return;
 
-  if (Math.random() < 0.5) {
+  if (Math.random() < 0.25) {
     score *= 2;
     alert("You won! 🍪🍪");
   } else {
