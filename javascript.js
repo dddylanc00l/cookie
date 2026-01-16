@@ -1,169 +1,174 @@
-// --- Load saved score ---
+/* =========================
+   LOAD SCORE
+========================= */
 let saved = localStorage.getItem("score");
 let score = saved !== null && !isNaN(saved) ? parseInt(saved) : 0;
-
-const OMA_COST = 50;
-const FARM_COST = 200;
-const MINE_COST = 1000;
-
-const OMA_PPS = 1;
-const FARM_PPS = 5;
-const MINE_PPS = 25;
 
 /* =========================
    NUMBER FORMATTER
 ========================= */
 function formatNumber(num) {
+  if (num >= 1_000_000_000) {
+    return (num / 1_000_000_000).toFixed(2).replace(/\.0$/, "") + "B";
+  }
   if (num >= 1_000_000) {
-    return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+    return (num / 1_000_000).toFixed(2).replace(/\.0$/, "") + "M";
   }
   if (num >= 1_000) {
-    return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+    return (num / 1_000).toFixed(2).replace(/\.0$/, "") + "k";
   }
   return num.toString();
 }
 
-// --- Get DOM elements ---
+/* =========================
+   UPGRADE CONFIG (ADD HERE)
+========================= */
+const upgrades = {
+  oma: {
+    cost: 50,
+    pps: 1,
+    unlocksAt: null,
+    buttonId: "oma",
+    containerId: "oma-container",
+    sprite: "grandma.png",
+    className: "omaSprite"
+  },
+  farm: {
+    cost: 200,
+    pps: 5,
+    unlocksAt: "oma",
+    buttonId: "farm",
+    containerId: "farm-container",
+    sprite: "farm.png",
+    className: "farmSprite"
+  },
+  mine: {
+    cost: 1000,
+    pps: 25,
+    unlocksAt: "farm",
+    buttonId: "mine",
+    containerId: "mine-container",
+    sprite: "mine.png",
+    className: "mineSprite"
+  },
+  factory: {
+    cost: 8000,
+    pps: 150,
+    unlocksAt: "mine",
+    buttonId: "factory",
+    containerId: "factory-container",
+    sprite: "factory.png",
+    className: "factorySprite"
+  },
+  bank: {
+    cost: 40000,
+    pps: 1000,
+    unlocksAt: "factory",
+    buttonId: "bank",
+    containerId: "bank-container",
+    sprite: "bank.png",
+    className: "bankSprite"
+  }
+};
+
+/* =========================
+   DOM ELEMENTS
+========================= */
 const cookie = document.getElementById("cookieImage");
-const perSecondText = document.getElementById("perSecond");
 const scoreText = document.getElementById("score");
-const buttonOma = document.getElementById("oma");
-const buttonFarm = document.getElementById("farm");
-const buttonMine = document.getElementById("mine");
-const gambel = document.getElementById("gok");
+const perSecondText = document.getElementById("perSecond");
+const resetBtn = document.getElementById("reset");
+const gambleBtn = document.getElementById("gok");
 
-// --- Track purchases ---
-let omaCount = parseInt(localStorage.getItem("omaCount")) || 0;
-let farmCount = parseInt(localStorage.getItem("farmCount")) || 0;
-let mineCount = parseInt(localStorage.getItem("mineCount")) || 0;
-
-// --- Initial UI update ---
-scoreText.textContent = formatNumber(score);
-updatePerSecond();
-updateFarmState();
-updateMineState();
-
-// --- Restore sprites ---
-for (let i = 0; i < omaCount; i++) spawnOma();
-for (let i = 0; i < farmCount; i++) spawnFarm();
-for (let i = 0; i < mineCount; i++) spawnMine();
-
-buttonOma.textContent = `Oma: ${omaCount}`;
-buttonFarm.textContent = `Farm: ${farmCount}`;
-buttonMine.textContent = `Mine: ${mineCount}`;
-
-// --- Auto-add score ---
-function startAutoScore() {
-  setInterval(() => {
-    const perSecond =
-      omaCount * OMA_PPS +
-      farmCount * FARM_PPS +
-      mineCount * MINE_PPS;
-
-    if (perSecond > 0) {
-      score += perSecond;
-      scoreText.textContent = formatNumber(score);
-      localStorage.setItem("score", score);
-    }
-  }, 1000);
+/* =========================
+   LOAD COUNTS
+========================= */
+const counts = {};
+for (const key in upgrades) {
+  counts[key] = parseInt(localStorage.getItem(key)) || 0;
 }
 
-startAutoScore();
+/* =========================
+   UI INIT
+========================= */
+scoreText.textContent = formatNumber(score);
+updatePerSecond();
+updateUnlocks();
 
-// --- Cookie click ---
+/* =========================
+   RESTORE SPRITES
+========================= */
+for (const type in counts) {
+  for (let i = 0; i < counts[type]; i++) {
+    spawnUpgrade(type);
+  }
+}
+
+/* =========================
+   AUTO SCORE
+========================= */
+setInterval(() => {
+  let total = 0;
+  for (const type in upgrades) {
+    total += counts[type] * upgrades[type].pps;
+  }
+
+  if (total > 0) {
+    score += total;
+    scoreText.textContent = formatNumber(score);
+    localStorage.setItem("score", score);
+  }
+}, 1000);
+
+/* =========================
+   COOKIE CLICK
+========================= */
 cookie.addEventListener("click", () => {
   score++;
   scoreText.textContent = formatNumber(score);
   localStorage.setItem("score", score);
 });
 
-// --- Reset ---
-document.getElementById("reset").addEventListener("click", () => {
+/* =========================
+   RESET
+========================= */
+resetBtn.addEventListener("click", () => {
+  // Reset score
   score = 0;
-  omaCount = 0;
-  farmCount = 0;
-  mineCount = 0;
-
+  localStorage.setItem("score", 0);
   scoreText.textContent = formatNumber(score);
-  buttonOma.textContent = `Oma: 0`;
-  buttonFarm.textContent = `Farm: 0`;
-  buttonMine.textContent = `Mine: 0`;
 
-  localStorage.setItem("score", score);
-  localStorage.setItem("omaCount", 0);
-  localStorage.setItem("farmCount", 0);
-  localStorage.setItem("mineCount", 0);
+  // Reset upgrades
+  for (const type in upgrades) {
+    counts[type] = 0;
+    localStorage.setItem(type, 0);
 
-  updateFarmState();
-  updateMineState();
+    // Clear images
+    const container = document.getElementById(upgrades[type].containerId);
+    if (container) container.innerHTML = "";
+
+    // Reset button text
+    const button = document.getElementById(upgrades[type].buttonId);
+    if (button) {
+      button.textContent = `${capitalize(type)}: 0`;
+    }
+  }
+
+  // 🔑 IMPORTANT: update AFTER everything is reset
   updatePerSecond();
-
-  document.getElementById("oma-container").innerHTML = "";
-  document.getElementById("farm-container").innerHTML = "";
-  document.getElementById("mine-container").innerHTML = "";
-
+  updateUnlocks();
 });
 
-// --- Oma purchase ---
-buttonOma.addEventListener("click", () => {
-  if (score >= OMA_COST) {
-    score -= OMA_COST;
-    scoreText.textContent = formatNumber(score);
-    localStorage.setItem("score", score);
 
-    omaCount++;
-    localStorage.setItem("omaCount", omaCount);
-    buttonOma.textContent = `Oma: ${omaCount}`;
-
-    updateFarmState();
-    updateMineState();
-    updatePerSecond();
-    spawnOma();
-  }
-});
-
-// --- Farm purchase ---
-buttonFarm.addEventListener("click", () => {
-  if (score >= FARM_COST) {
-    score -= FARM_COST;
-    scoreText.textContent = formatNumber(score);
-    localStorage.setItem("score", score);
-
-    farmCount++;
-    localStorage.setItem("farmCount", farmCount);
-    buttonFarm.textContent = `Farm: ${farmCount}`;
-
-    updateMineState();
-    updatePerSecond();
-    spawnFarm();
-  }
-});
-
-// --- Mine purchase ---
-buttonMine.addEventListener("click", () => {
-  if (score >= MINE_COST) {
-    score -= MINE_COST;
-    scoreText.textContent = formatNumber(score);
-    localStorage.setItem("score", score);
-
-    mineCount++;
-    localStorage.setItem("mineCount", mineCount);
-    buttonMine.textContent = `Mine: ${mineCount}`;
-
-    updatePerSecond();
-    spawnMine();
-  }
-});
-
-// --- Gambling ---
-gambel.addEventListener("click", () => {
+/* =========================
+   GAMBLING
+========================= */
+gambleBtn.addEventListener("click", () => {
   if (score <= 0) return;
 
-  const roll = Math.floor(Math.random() * 4);
-
-  if (roll === 0) {
+  if (Math.random() < 0.5) {
     score *= 2;
-    alert("You won! Your cookies doubled 🍪🍪");
+    alert("You won! 🍪🍪");
   } else {
     score = 0;
     alert("You lost everything...");
@@ -173,55 +178,68 @@ gambel.addEventListener("click", () => {
   localStorage.setItem("score", score);
 });
 
-// --- State updates ---
-function updateFarmState() {
-  buttonFarm.disabled = omaCount < 1;
-  buttonFarm.classList.toggle("locked", omaCount < 1);
-  buttonFarm.classList.toggle("unlocked", omaCount >= 1);
+/* =========================
+   BUTTON HANDLERS
+========================= */
+for (const type in upgrades) {
+  const { cost, buttonId } = upgrades[type];
+  const button = document.getElementById(buttonId);
+
+  button.textContent = `${capitalize(type)}: ${counts[type]}`;
+
+  button.addEventListener("click", () => {
+    if (score < cost) return;
+
+    score -= cost;
+    counts[type]++;
+
+    localStorage.setItem("score", score);
+    localStorage.setItem(type, counts[type]);
+
+    scoreText.textContent = formatNumber(score);
+    button.textContent = `${capitalize(type)}: ${counts[type]}`;
+
+    spawnUpgrade(type);
+    updatePerSecond();
+    updateUnlocks();
+  });
 }
 
-function updateMineState() {
-  buttonMine.disabled = farmCount < 1;
-  buttonMine.classList.toggle("locked", farmCount < 1);
-  buttonMine.classList.toggle("unlocked", farmCount >= 1);
-}
-
+/* =========================
+   HELPERS
+========================= */
 function updatePerSecond() {
-  const perSecond =
-    omaCount * OMA_PPS +
-    farmCount * FARM_PPS +
-    mineCount * MINE_PPS;
-
-  perSecondText.textContent = `${formatNumber(perSecond)}$ per second`;
+  let total = 0;
+  for (const type in upgrades) {
+    total += counts[type] * upgrades[type].pps;
+  }
+  perSecondText.textContent = `${formatNumber(total)}$ per second`;
 }
 
-// --- Spawning ---
-function spawnOma() {
-  const container = document.getElementById("oma-container");
-  if (container.children.length >= 6) return;
+function updateUnlocks() {
+  for (const type in upgrades) {
+    const { unlocksAt, buttonId } = upgrades[type];
+    const button = document.getElementById(buttonId);
 
-  const oma = document.createElement("img");
-  oma.src = "grandma.png";
-  oma.className = "omaSprite";
-  container.appendChild(oma);
+    const unlocked = !unlocksAt || counts[unlocksAt] > 0;
+    button.disabled = !unlocked;
+    button.classList.toggle("locked", !unlocked);
+    button.classList.toggle("unlocked", unlocked);
+  }
 }
 
-function spawnFarm() {
-  const container = document.getElementById("farm-container");
-  if (container.children.length >= 6) return;
+function spawnUpgrade(type) {
+  const { containerId, sprite, className } = upgrades[type];
+  const container = document.getElementById(containerId);
 
-  const farm = document.createElement("img");
-  farm.src = "farm.png";
-  farm.className = "farmSprite";
-  container.appendChild(farm);
+  if (!container || container.children.length >= 6) return;
+
+  const img = document.createElement("img");
+  img.src = sprite;
+  img.className = className;
+  container.appendChild(img);
 }
 
-function spawnMine() {
-  const container = document.getElementById("mine-container");
-  if (container.children.length >= 6) return;
-
-  const mine = document.createElement("img");
-  mine.src = "mine.png";
-  mine.className = "mineSprite";
-  container.appendChild(mine);
+function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
 }

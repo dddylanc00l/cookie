@@ -1,28 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div id="game-layout">
     <!-- LEFT UI -->
     <aside id="left-ui">
       <section id="upgrades">
         <h1>Upgrades:</h1>
+        <!-- oma -->
         <div class="upgrade-item">
           <button id="oma" class="upgrade-btn">Oma</button>
           <span class="tooltip">$50<br>+1$ per second</span>
         </div>
+        <!--farm-->
         <div class="upgrade-item">
           <button id="farm" class="upgrade-btn">Farm</button>
           <span class="tooltip">$200<br>+5$ per second</span>
         </div>
+        <!--mine-->
         <div class="upgrade-item">
           <button id="mine" class="upgrade-btn">Mine</button>
-          <span class="tooltip">$1000<br>+25$ per second</span>
+          <span class="tooltip">$1k<br>+25$ per second</span>
+        </div>
+        <!--factory-->
+        <div class="upgrade-item">
+          <button id="factory" class="upgrade-btn">Factory</button>
+          <span class="tooltip">$8k<br>+150$ per second</span>
+        </div>
+        <!--bank-->
+        <div class="upgrade-item">
+          <button id="bank" class="upgrade-btn">Bank</button>
+          <span class="tooltip">$40k<br>+1k$ per second</span>
         </div>
       </section>
 
@@ -42,15 +57,16 @@
     </main>
 
     <!-- RIGHT OMA PANEL -->
-<section id="image">
-  <div id="oma-container"></div>
-  <div id="farm-container"></div>
-  <div id="mine-container"></div>
-</section>
+    <section id="image">
+      <div id="oma-container"></div>
+      <div id="farm-container"></div>
+      <div id="mine-container"></div>
+      <div id="factory-container"></div>
+      <div id="bank-container"></div>
+    </section>
 
   </div>
   <script src="javascript.js"></script>
 </body>
-
 
 </html>

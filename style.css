@@ -8,13 +8,38 @@
 }
 
 /* =========================
-   LEFT UI
+   LEFT UI (SCROLL)
 ========================= */
 #left-ui {
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 2vh 1vw;
+  overflow: hidden;
+}
+
+#upgrades {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5vw;
+}
+
+#gambel {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+}
+
+#left-ui > * + * {
+  margin-top: 1.5vh;
+}
+
+#left-ui span,
+#left-ui p {
+  display: block;
+  margin-top: 1vh;
+  margin-bottom: 3vh;
+  color: white;
 }
 
 /* =========================
@@ -28,12 +53,11 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 /* =========================
@@ -53,7 +77,7 @@ body {
 }
 
 /* =========================
-   SCORE DISPLAY
+   SCORE
 ========================= */
 #score {
   font-size: 48px;
@@ -68,22 +92,7 @@ body {
 }
 
 /* =========================
-   GAMBLE SECTION
-========================= */
-#gambel {
-  display: flex;
-  flex-direction: column;
-  gap: 1vh;
-}
-
-#gok {
-  height: 5vh;
-  min-height: 35px;
-  font-size: 1vw;
-}
-
-/* =========================
-   RIGHT PANEL (SPRITES)
+   RIGHT PANEL
 ========================= */
 #image {
   position: fixed;
@@ -98,10 +107,11 @@ body {
   z-index: 5;
 }
 
-/* Shared container styling */
 #oma-container,
 #farm-container,
-#mine-container {
+#mine-container,
+#factory-container,
+#bank-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, auto);
@@ -109,33 +119,193 @@ body {
   justify-items: end;
 }
 
-/* =========================
-   SPRITES (FIXED SIZE)
-========================= */
 .omaSprite,
 .farmSprite,
-.mineSprite {
+.mineSprite,
+.factorySprite,
+.bankSprite {
   width: 100%;
   max-width: 80px;
-  height: auto;
 }
 
 /* =========================
-   LOCK STATES
+   UPGRADE BUTTONS (BASE)
 ========================= */
-.locked {
-  background-color: red;
+.upgrade-btn {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 12px;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ffffff, #e6e6e6);
+  color: #222;
+
+  box-shadow:
+    0 6px 0 #bdbdbd,
+    0 8px 15px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================
+   LOCKED STATE (GRAY, NO SHINE)
+========================= */
+.upgrade-btn.locked {
+  background: linear-gradient(135deg, #5e5e5d, #323131);
   color: white;
   cursor: not-allowed;
+  filter: grayscale(0.6);
+
+  /* subtle pulse only */
+  animation: lockedPulse 1.8s ease-in-out infinite;
+
+  box-shadow:
+    0 5px 0 #7a6161,
+    0 6px 10px rgba(0, 0, 0, 0.5);
 }
 
-.unlocked {
-  background-color: white;
-  color: black;
+/* Locked pulse animation */
+@keyframes lockedPulse {
+  0%, 100% {
+    box-shadow:
+      0 5px 0 #7a6161,
+      0 6px 10px rgba(0, 0, 0, 0.5);
+  }
+  50% {
+    box-shadow:
+      0 5px 0 #9c7b7b,
+      0 6px 16px rgba(255, 255, 255, 0.25);
+  }
 }
 
 /* =========================
-   ANIMATED BACKGROUND
+   UNLOCKED STATE (GREEN + SHINE)
+========================= */
+.upgrade-btn.unlocked {
+  background: linear-gradient(135deg, #a6f2a4, #a6f2a4);
+  color: #1e1e1e;
+
+  animation: unlockedPulse 1.8s ease-in-out infinite;
+
+  box-shadow:
+    0 5px 0 rgb(182, 229, 179),
+    0 6px 10px rgba(0, 0, 0, 0.35);
+}
+
+/* Shine sweep on unlocked */
+.upgrade-btn.unlocked::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  left: -150%;
+  width: 50%;
+
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.45),
+    transparent
+  );
+
+  animation: shineSweep 2.6s infinite;
+}
+
+/* Unlocked pulse animation */
+@keyframes unlockedPulse {
+  0%, 100% {
+    box-shadow:
+      0 5px 0 rgb(182, 229, 179),
+      0 6px 10px rgba(0, 0, 0, 0.35);
+  }
+  50% {
+    box-shadow:
+      0 5px 0 rgb(210, 245, 210),
+      0 6px 16px rgba(255, 255, 255, 0.45);
+  }
+}
+
+/* Shine animation keyframes */
+@keyframes shineSweep {
+  0%   { left: -150%; }
+  50%  { left: 150%; }
+  100% { left: 150%; }
+}
+
+
+/* =========================
+   GAMBLE BUTTON (RESTORED)
+========================= */
+#gok {
+  height: 5vh;
+  min-height: 35px;
+  font-size: 1vw;
+  font-weight: 900;
+
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ffd700, #ff9800);
+  color: #3a2600;
+
+  box-shadow:
+    0 6px 0 #c77700,
+    0 8px 15px rgba(0, 0, 0, 0.4);
+
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.15s ease;
+}
+
+#gok:hover {
+  filter: brightness(1.08);
+}
+
+#gok:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 3px 0 #c77700,
+    0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* =========================
+   RESET BUTTON
+========================= */
+#reset {
+  margin-top: 15px;
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 10px;
+  border: none;
+
+  background: linear-gradient(135deg, #ff4d4d, #b30000);
+  color: white;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 0 #7a0000,
+    0 7px 12px rgba(0, 0, 0, 0.4);
+}
+
+#reset:hover {
+  filter: brightness(1.1);
+}
+
+#reset:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 2px 0 #7a0000,
+    0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* =========================
+   BACKGROUND
 ========================= */
 body::before {
   content: "";
