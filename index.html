@@ -12,6 +12,17 @@
   <div id="game-layout">
     <!-- LEFT UI -->
     <aside id="left-ui">
+      <section id="store">
+        <h1>Store</h1>
+
+        <div class="store-item">
+          <img src="weedcookie.png" id="weed-cookie" alt="Weed Cookie" class="store-img locked" />
+          <span class="tooltip">
+            Requires 100 Farms<br>
+            Farm production: 5 → 20
+          </span>
+        </div>
+      </section>
       <section id="upgrades">
         <h1>Upgrades:</h1>
         <!-- oma -->
@@ -22,7 +33,7 @@
         <!--farm-->
         <div class="upgrade-item">
           <button id="farm" class="upgrade-btn">Farm</button>
-          <span class="tooltip">$200<br>+5$ per second</span>
+          <span class="tooltip" id="farm-tooltip"></span>
         </div>
         <!--mine-->
         <div class="upgrade-item">

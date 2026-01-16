@@ -4,10 +4,13 @@
 let saved = localStorage.getItem("score");
 let score = saved !== null && !isNaN(saved) ? parseInt(saved) : 0;
 
-let clickCount = 0;          // counts clicks in the current second
-const maxClicksPerSecond = 50; // maximum allowed clicks per second
+let clickCount = 0;
+const maxClicksPerSecond = 50;
 
-// Reset the click counter every 1 second
+let weedCookieBought = localStorage.getItem("weedCookie") === "true";
+const weedCookieImg = document.getElementById("weed-cookie");
+
+// Reset click counter every second
 setInterval(() => {
   clickCount = 0;
 }, 1000);
@@ -16,67 +19,21 @@ setInterval(() => {
    NUMBER FORMATTER
 ========================= */
 function formatNumber(num) {
-  if (num >= 1_000_000_000) {
-    return (num / 1_000_000_000).toFixed(2).replace(/\.0$/, "") + "B";
-  }
-  if (num >= 1_000_000) {
-    return (num / 1_000_000).toFixed(2).replace(/\.0$/, "") + "M";
-  }
-  if (num >= 1_000) {
-    return (num / 1_000).toFixed(2).replace(/\.0$/, "") + "k";
-  }
+  if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(2) + "B";
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(2) + "M";
+  if (num >= 1_000) return (num / 1_000).toFixed(2) + "k";
   return num.toString();
 }
 
 /* =========================
-   UPGRADE CONFIG (ADD HERE)
+   UPGRADE CONFIG
 ========================= */
 const upgrades = {
-  oma: {
-    cost: 50,
-    pps: 1,
-    unlocksAt: null,
-    buttonId: "oma",
-    containerId: "oma-container",
-    sprite: "grandma.png",
-    className: "omaSprite"
-  },
-  farm: {
-    cost: 200,
-    pps: 5,
-    unlocksAt: "oma",
-    buttonId: "farm",
-    containerId: "farm-container",
-    sprite: "farm.png",
-    className: "farmSprite"
-  },
-  mine: {
-    cost: 1000,
-    pps: 25,
-    unlocksAt: "farm",
-    buttonId: "mine",
-    containerId: "mine-container",
-    sprite: "mine.png",
-    className: "mineSprite"
-  },
-  factory: {
-    cost: 8000,
-    pps: 150,
-    unlocksAt: "mine",
-    buttonId: "factory",
-    containerId: "factory-container",
-    sprite: "factory.png",
-    className: "factorySprite"
-  },
-  bank: {
-    cost: 40000,
-    pps: 1000,
-    unlocksAt: "factory",
-    buttonId: "bank",
-    containerId: "bank-container",
-    sprite: "bank.png",
-    className: "bankSprite"
-  }
+  oma: { cost: 50, pps: 1, unlocksAt: null, buttonId: "oma", containerId: "oma-container", sprite: "grandma.png", className: "omaSprite" },
+  farm: { cost: 200, pps: 5, unlocksAt: "oma", buttonId: "farm", containerId: "farm-container", sprite: "farm.png", className: "farmSprite" },
+  mine: { cost: 1000, pps: 25, unlocksAt: "farm", buttonId: "mine", containerId: "mine-container", sprite: "mine.png", className: "mineSprite" },
+  factory: { cost: 8000, pps: 150, unlocksAt: "mine", buttonId: "factory", containerId: "factory-container", sprite: "factory.png", className: "factorySprite" },
+  bank: { cost: 40000, pps: 1000, unlocksAt: "factory", buttonId: "bank", containerId: "bank-container", sprite: "bank.png", className: "bankSprite" }
 };
 
 /* =========================
@@ -100,8 +57,11 @@ for (const key in upgrades) {
    UI INIT
 ========================= */
 scoreText.textContent = formatNumber(score);
+updateAllUpgradeButtons();
+updateStore();
 updatePerSecond();
 updateUnlocks();
+updateTooltips();
 
 /* =========================
    RESTORE SPRITES
@@ -116,15 +76,12 @@ for (const type in counts) {
    AUTO SCORE
 ========================= */
 setInterval(() => {
-  let total = 0;
-  for (const type in upgrades) {
-    total += counts[type] * upgrades[type].pps;
-  }
-
+  const total = calculateTotalPPS();
   if (total > 0) {
     score += total;
     scoreText.textContent = formatNumber(score);
     localStorage.setItem("score", score);
+    updateAllUpgradeButtons(); // update buttons to gray out unaffordable upgrades
   }
 }, 1000);
 
@@ -132,46 +89,38 @@ setInterval(() => {
    COOKIE CLICK
 ========================= */
 cookie.addEventListener("click", () => {
-  if (clickCount >= maxClicksPerSecond) return; // ignore if too many clicks
-
-  clickCount++; // count this click
-
+  if (clickCount >= maxClicksPerSecond) return;
+  clickCount++;
   score++;
   scoreText.textContent = formatNumber(score);
   localStorage.setItem("score", score);
+  updateAllUpgradeButtons();
 });
-
 
 /* =========================
    RESET
 ========================= */
 resetBtn.addEventListener("click", () => {
-  // Reset score
   score = 0;
   localStorage.setItem("score", 0);
   scoreText.textContent = formatNumber(score);
 
-  // Reset upgrades
   for (const type in upgrades) {
     counts[type] = 0;
     localStorage.setItem(type, 0);
-
-    // Clear images
     const container = document.getElementById(upgrades[type].containerId);
     if (container) container.innerHTML = "";
-
-    // Reset button text
-    const button = document.getElementById(upgrades[type].buttonId);
-    if (button) {
-      button.textContent = `${capitalize(type)}: 0`;
-    }
   }
 
-  // 🔑 IMPORTANT: update AFTER everything is reset
+  weedCookieBought = false;
+  localStorage.removeItem("weedCookie");
+
+  updateStore();
+  updateAllUpgradeButtons();
   updatePerSecond();
+  updateTooltips();
   updateUnlocks();
 });
-
 
 /* =========================
    GAMBLING
@@ -189,18 +138,19 @@ gambleBtn.addEventListener("click", () => {
 
   scoreText.textContent = formatNumber(score);
   localStorage.setItem("score", score);
+  updateAllUpgradeButtons();
 });
 
 /* =========================
-   BUTTON HANDLERS
+   UPGRADE BUTTON HANDLERS
 ========================= */
 for (const type in upgrades) {
-  const { cost, buttonId } = upgrades[type];
-  const button = document.getElementById(buttonId);
+  const button = document.getElementById(upgrades[type].buttonId);
 
-  button.textContent = `${capitalize(type)}: ${counts[type]}`;
+  updateUpgradeButton(type);
 
   button.addEventListener("click", () => {
+    const cost = getUpgradeCost(type);
     if (score < cost) return;
 
     score -= cost;
@@ -210,46 +160,128 @@ for (const type in upgrades) {
     localStorage.setItem(type, counts[type]);
 
     scoreText.textContent = formatNumber(score);
-    button.textContent = `${capitalize(type)}: ${counts[type]}`;
 
     spawnUpgrade(type);
+    updateUpgradeButton(type);
+    updateStore();
     updatePerSecond();
+    updateTooltips();
     updateUnlocks();
+  });
+}
+
+/* =========================
+   STORE (WEED COOKIE)
+========================= */
+function updateStore() {
+  if (!weedCookieImg) return;
+
+  weedCookieImg.classList.remove("locked", "unlocked");
+
+  if (weedCookieBought || counts.farm >= 100) {
+    weedCookieImg.classList.add("unlocked");
+  } else {
+    weedCookieImg.classList.add("locked");
+  }
+}
+
+if (weedCookieImg) {
+  weedCookieImg.addEventListener("click", () => {
+    if (weedCookieBought || counts.farm < 100) return;
+
+    weedCookieBought = true;
+    localStorage.setItem("weedCookie", "true");
+
+    alert("🌿 Weed Cookie bought! Farms now produce 20$/s");
+
+    updateAllUpgradeButtons();
+    updatePerSecond();
+    updateTooltips();
+    updateStore();
   });
 }
 
 /* =========================
    HELPERS
 ========================= */
-function updatePerSecond() {
+function getEffectivePPS(type) {
+  if (type === "farm" && weedCookieBought) return 20;
+  return upgrades[type].pps;
+}
+
+function calculateTotalPPS() {
   let total = 0;
   for (const type in upgrades) {
-    total += counts[type] * upgrades[type].pps;
+    total += counts[type] * getEffectivePPS(type);
   }
-  perSecondText.textContent = `${formatNumber(total)}$ per second`;
+  return total;
+}
+
+function updatePerSecond() {
+  perSecondText.textContent =
+    `${formatNumber(calculateTotalPPS())}$ per second`;
+}
+
+function getUpgradeCost(type) {
+  const baseCost = upgrades[type].cost;
+  const owned = counts[type];
+  return Math.floor(baseCost * Math.pow(1.15, owned));
+}
+
+function updateUpgradeButton(type) {
+  const button = document.getElementById(upgrades[type].buttonId);
+  if (!button) return;
+
+  const cost = getUpgradeCost(type);
+  const pps = getEffectivePPS(type);
+
+  button.textContent =
+    `${capitalize(type)}: ${counts[type]} | $${formatNumber(cost)} (+${pps}$/s)`;
+
+  // Check unlock + affordability
+  const unlocked = !upgrades[type].unlocksAt || counts[upgrades[type].unlocksAt] > 0;
+  const affordable = score >= cost;
+
+  button.disabled = !unlocked || !affordable;
+
+  // Update styling
+  button.classList.toggle("locked", !unlocked || !affordable);
+  button.classList.toggle("unlocked", unlocked && affordable);
+}
+
+function updateAllUpgradeButtons() {
+  for (const type in upgrades) {
+    updateUpgradeButton(type);
+  }
+}
+
+function updateTooltips() {
+  const farmTooltip = document.getElementById("farm-tooltip");
+  if (!farmTooltip) return;
+  farmTooltip.innerHTML =
+    `$200<br>+${getEffectivePPS("farm")}$ per second`;
 }
 
 function updateUnlocks() {
   for (const type in upgrades) {
-    const { unlocksAt, buttonId } = upgrades[type];
-    const button = document.getElementById(buttonId);
+    const button = document.getElementById(upgrades[type].buttonId);
+    const unlocked =
+      !upgrades[type].unlocksAt ||
+      counts[upgrades[type].unlocksAt] > 0;
 
-    const unlocked = !unlocksAt || counts[unlocksAt] > 0;
-    button.disabled = !unlocked;
+    button.disabled = !unlocked || score < getUpgradeCost(type);
     button.classList.toggle("locked", !unlocked);
     button.classList.toggle("unlocked", unlocked);
   }
 }
 
 function spawnUpgrade(type) {
-  const { containerId, sprite, className } = upgrades[type];
-  const container = document.getElementById(containerId);
-
+  const container = document.getElementById(upgrades[type].containerId);
   if (!container || container.children.length >= 6) return;
 
   const img = document.createElement("img");
-  img.src = sprite;
-  img.className = className;
+  img.src = upgrades[type].sprite;
+  img.className = upgrades[type].className;
   container.appendChild(img);
 }
 
