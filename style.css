@@ -111,7 +111,8 @@ body {
 #farm-container,
 #mine-container,
 #factory-container,
-#bank-container {
+#bank-container,
+#casino-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, auto);
@@ -123,7 +124,8 @@ body {
 .farmSprite,
 .mineSprite,
 .factorySprite,
-.bankSprite {
+.bankSprite,
+.casinoSprite {
   width: 100%;
   max-width: 80px;
 }

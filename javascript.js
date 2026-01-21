@@ -33,7 +33,8 @@ const upgrades = {
   farm: { cost: 200, pps: 5, unlocksAt: "oma", buttonId: "farm", containerId: "farm-container", sprite: "farm.png", className: "farmSprite" },
   mine: { cost: 1000, pps: 25, unlocksAt: "farm", buttonId: "mine", containerId: "mine-container", sprite: "mine.png", className: "mineSprite" },
   factory: { cost: 8000, pps: 150, unlocksAt: "mine", buttonId: "factory", containerId: "factory-container", sprite: "factory.png", className: "factorySprite" },
-  bank: { cost: 40000, pps: 1000, unlocksAt: "factory", buttonId: "bank", containerId: "bank-container", sprite: "bank.png", className: "bankSprite" }
+  bank: { cost: 40000, pps: 1000, unlocksAt: "factory", buttonId: "bank", containerId: "bank-container", sprite: "bank.png", className: "bankSprite" },
+  casino: { cost: 10000, pps: 0, unlocksAt: "bank", buttonId: "casino", containerId: "casino-container", sprite: "casino.png", className: "casinoSprite" }
 };
 
 /* =========================
@@ -62,6 +63,7 @@ updateStore();
 updatePerSecond();
 updateUnlocks();
 updateTooltips();
+updateGamblingUnlock();
 
 /* =========================
    RESTORE SPRITES
@@ -86,6 +88,7 @@ setInterval(() => {
     updateAllUpgradeButtons();
     updateUnlocks();
     updateStore();
+    updateGamblingUnlock();
   }
 }, 1000);
 
@@ -127,12 +130,14 @@ resetBtn.addEventListener("click", () => {
   updateUnlocks();
   updateTooltips();
   updateStore();
+  updateGamblingUnlock();
 });
 
 /* =========================
    GAMBLING
 ========================= */
 gambleBtn.addEventListener("click", () => {
+  if (counts.casino < 1) return; // must own casino
   if (score <= 0) return;
 
   if (Math.random() < 0.25) {
@@ -160,6 +165,7 @@ for (const type in upgrades) {
   updateUpgradeButton(type);
 
   button.addEventListener("click", () => {
+    if (type === "casino" && counts.casino >= 1) return;
     const cost = getUpgradeCost(type);
     if (score < cost) return;
 
@@ -178,6 +184,7 @@ for (const type in upgrades) {
     updatePerSecond();
     updateTooltips();
     updateStore();
+    updateGamblingUnlock();
   });
 }
 
@@ -265,7 +272,8 @@ function updateUnlocks() {
 
     const unlocked = !upgrades[type].unlocksAt || counts[upgrades[type].unlocksAt] > 0;
     const affordable = score >= getUpgradeCost(type);
-    const enable = unlocked && affordable;
+    const isCasinoLocked = type === "casino" && counts.casino >= 1;
+    const enable = unlocked && affordable && !isCasinoLocked;
 
     button.disabled = !enable;
     button.classList.toggle("locked", !enable);
@@ -291,4 +299,15 @@ function getUpgradeCost(type) {
   const baseCost = upgrades[type].cost;
   const owned = counts[type];
   return Math.floor(baseCost * Math.pow(1.15, owned));
+}
+
+function updateGamblingUnlock() {
+  if (!gambleBtn) return;
+
+  const unlocked = counts.casino >= 1;
+
+  gambleBtn.disabled = !unlocked;
+
+  gambleBtn.classList.remove("locked", "unlocked");
+  gambleBtn.classList.add(unlocked ? "unlocked" : "locked");
 }
