@@ -336,13 +336,29 @@ body::before {
   to   { background-position: 0% 0%; }
 }
 
+/* =========================
+        STORE LAYOUT
+========================= */
 #store {
   margin-bottom: 2vh;
 }
 
-.store-item {
-  position: relative;
+/* Title stays separate */
+#store h1 {
   margin-bottom: 2vh;
+}
+
+/* Wrapper for items only */
+#store .store-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 3vw;   /* 👈 SPACE BETWEEN IMAGES */
+}
+
+/* Optional: prevent last item extra spacing */
+#store .store-item:last-child {
+  margin-right: 0;
 }
 
 .store-img {

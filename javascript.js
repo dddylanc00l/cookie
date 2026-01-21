@@ -9,6 +9,8 @@ const maxClicksPerSecond = 50;
 
 let weedCookieBought = localStorage.getItem("weedCookie") === "true";
 const weedCookieImg = document.getElementById("weed-cookie");
+let cursorBought = localStorage.getItem("cursorBought") === "true";
+const cursorImg = document.getElementById("cursor-upgrade");
 
 // Reset click counter every second
 setInterval(() => {
@@ -98,7 +100,7 @@ setInterval(() => {
 cookie.addEventListener("click", () => {
   if (clickCount >= maxClicksPerSecond) return;
   clickCount++;
-  score++;
+  score += cursorBought ? 2 : 1;
   scoreText.textContent = formatNumber(score);
   localStorage.setItem("score", score);
 
@@ -114,6 +116,9 @@ resetBtn.addEventListener("click", () => {
   score = 0;
   localStorage.setItem("score", 0);
   scoreText.textContent = formatNumber(score);
+
+  cursorBought = false;
+  localStorage.removeItem("cursorBought");
 
   for (const type in upgrades) {
     counts[type] = 0;
@@ -192,19 +197,32 @@ for (const type in upgrades) {
    STORE (WEED COOKIE)
 ========================= */
 function updateStore() {
-  if (!weedCookieImg) return;
+  // Weed Cookie
+  if (weedCookieImg) {
+    weedCookieImg.classList.remove("locked", "unlocked");
 
-  weedCookieImg.classList.remove("locked", "unlocked");
+    if (weedCookieBought) {
+      weedCookieImg.classList.add("unlocked");
+    } else if (counts.farm >= 100) {
+      weedCookieImg.classList.add("unlocked");
+    } else {
+      weedCookieImg.classList.add("locked");
+    }
+  }
 
-  if (weedCookieBought) {
-    weedCookieImg.classList.add("unlocked");
-  } else if (counts.farm >= 100) {
-    weedCookieImg.classList.add("unlocked");
-  } else {
-    weedCookieImg.classList.add("locked");
+  // Cursor
+  if (cursorImg) {
+    cursorImg.classList.remove("locked", "unlocked");
+
+    if (cursorBought || score >= 100) {
+      cursorImg.classList.add("unlocked");
+    } else {
+      cursorImg.classList.add("locked");
+    }
   }
 }
 
+// Weed Cookie click
 if (weedCookieImg) {
   weedCookieImg.addEventListener("click", () => {
     if (weedCookieBought || counts.farm < 100) return;
@@ -219,6 +237,22 @@ if (weedCookieImg) {
     updatePerSecond();
     updateTooltips();
     updateStore();
+  });
+}
+
+// Cursor click
+if (cursorImg) {
+  cursorImg.addEventListener("click", () => {
+    if (cursorBought || score < 100) return;
+
+    cursorBought = true;
+    score -= 100; // spend the 100 score
+    localStorage.setItem("cursorBought", "true");
+    localStorage.setItem("score", score);
+
+    alert("🖱️ Cursor bought! Clicks now give +2");
+
+    updateStore(); // refresh visuals immediately
   });
 }
 
