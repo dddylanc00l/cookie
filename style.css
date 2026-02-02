@@ -350,10 +350,11 @@ body::before {
 
 /* Wrapper for items only */
 #store .store-item {
-  display: inline-flex;
+  display: inline-block;
   flex-direction: column;
   align-items: center;
-  margin-right: 3vw;   /* 👈 SPACE BETWEEN IMAGES */
+  min-inline-size: 3vw;
+  max-inline-size: 10vw;
 }
 
 /* Optional: prevent last item extra spacing */
